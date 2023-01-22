@@ -15,7 +15,7 @@ export class ContentController {
 
     @Get()
     async query() {
-        return []
+        return ['foo']
     }
 
     @Post()

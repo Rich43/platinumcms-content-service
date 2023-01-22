@@ -1,21 +1,17 @@
 import 'reflect-metadata';
-import Koa from 'koa';
+import express, { Express } from 'express';
 import { serverSettings } from './config';
 import { Container } from 'typedi';
 import { routingConfigs } from './setup/routing.options';
-import { useMiddlewares } from './setup/koa.middlewares';
-import { useContainer, useKoaServer } from 'routing-controllers';
+import { useContainer, useExpressServer } from 'routing-controllers';
 
 export function createServer() {
-    const koa: Koa = new Koa();
-
-    useMiddlewares(koa);
+    const app = express();
     useContainer(Container);
-
-    return useKoaServer<Koa>(koa, routingConfigs);
+    return useExpressServer(app, routingConfigs);
 }
 
-export function listen(app: Koa) {
+export function listen(app: Express) {
     app.listen(serverSettings.port);
 }
 
