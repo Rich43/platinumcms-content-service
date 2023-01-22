@@ -1,9 +1,10 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { UpdateContentDto } from '../dto';
 
 @Entity()
-export class ContentModel {
+export class ContentModel implements UpdateContentDto {
     @PrimaryGeneratedColumn()
-    id!: string;
+    id!: number;
 
     @Column()
     name!: string
