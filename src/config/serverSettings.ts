@@ -1,9 +1,9 @@
 import config from 'config';
 
 export const serverSettings = {
-    name: config.get('name'),
-    host: config.get('host'),
-    port: config.get('port'),
-    context: config.get('context'),
-    logLevel: config.get('logLevel'),
+    name: config.get<string>('name'),
+    host: config.get<string>('host'),
+    port: config.get<number>('port'),
+    context: config.get<string>('context'),
+    logLevel: config.get<string[]>('logLevel'),
 };

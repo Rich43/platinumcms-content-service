@@ -6,7 +6,7 @@ import {
     Get,
 } from 'routing-controllers'
 import { ContentService } from '../services'
-import { Service } from 'typedi'
+import { Service } from 'typedi';
 
 @JsonController()
 @Service()
