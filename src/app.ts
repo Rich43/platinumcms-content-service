@@ -5,7 +5,7 @@ import { Container } from 'typedi';
 import { routingConfigs } from './setup/routing.options';
 import { useContainer, useExpressServer } from 'routing-controllers';
 import log from './setup/logger';
-import morganMiddleware from './setup/morganMiddleware';
+import morganMiddleware from './setup/morgan.middleware';
 import AppDataSource from './setup/datasource';
 
 export function createServer() {
