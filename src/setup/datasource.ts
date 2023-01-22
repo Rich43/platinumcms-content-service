@@ -14,7 +14,10 @@ const remoteDBBase = {
 
 const extraConfig = {
     logging: true,
-    entities: dictToArray(models)
+    synchronize: true,
+    entities: dictToArray(models),
+    subscribers: [],
+    migrations: [],
 }
 
 let AppDataSource: DataSource | undefined = undefined;
