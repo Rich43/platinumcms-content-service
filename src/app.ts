@@ -1,12 +1,13 @@
 import Koa from 'koa';
+import 'reflect-metadata';
 import { serverSettings } from './config';
+import { createKoaServer } from 'routing-controllers';
+import { ContentController } from './controllers';
 
 export function configure() {
-    const app = new Koa();
-    app.use(ctx => {
-        ctx.body = 'Hello ' + serverSettings.name;
+    return createKoaServer({
+        controllers: [ContentController],
     });
-    return app;
 }
 
 export function listen(app: Koa<Koa.DefaultState, Koa.DefaultContext>) {
