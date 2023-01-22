@@ -5,5 +5,5 @@ export const serverSettings = {
     host: config.get<string>('host'),
     port: config.get<number>('port'),
     context: config.get<string>('context'),
-    logLevel: config.get<string[]>('logLevel'),
+    logLevel: config.get<string>('logLevel'),
 };

@@ -3,10 +3,7 @@
   "host": "localhost",
   "port": 3000,
   "context": "/api/content-service",
-  "logLevel": [
-    "info",
-    "debug"
-  ],
+  "logLevel": "debug",
   "database": {
     "dialect": "sqlite",
     "storage": "platinumcms-content-service-dev.sqlite3"

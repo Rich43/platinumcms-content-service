@@ -3,9 +3,7 @@
   "host": "localhost",
   "port": 3000,
   "context": "/api/content-service",
-  "logLevel": [
-    "info"
-  ],
+  "logLevel": "info",
   "database": {
     "host": "localhost",
     "port": 3306,
