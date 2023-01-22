@@ -1,6 +1,6 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity()
+@Entity('content')
 export class ContentModel {
     @PrimaryGeneratedColumn()
     id!: number;
