@@ -1,6 +1,5 @@
 import config from 'config';
 
-const DATABASE_STORAGE = 'database.storage';
 const DATABASE_DIALECT = 'database.dialect';
 const DATABASE_HOST = 'database.host';
 const DATABASE_PORT = 'database.port';
@@ -9,7 +8,6 @@ const DATABASE_PASSWORD = 'database.password';
 const DATABASE_DATABASE = 'database.database';
 
 export const dbSettings = {
-    storage: config.has(DATABASE_STORAGE) ? config.get<string>(DATABASE_STORAGE) : undefined,
     dialect: config.get<string>(DATABASE_DIALECT),
     dialectOptions: {
         host: config.has(DATABASE_HOST) ? config.get<string>(DATABASE_HOST) : undefined,

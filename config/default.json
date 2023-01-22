@@ -6,6 +6,6 @@
   "logLevel": "debug",
   "database": {
     "dialect": "sqlite",
-    "storage": "platinumcms-content-service-dev.sqlite3"
+    "database": "platinumcms-content-service-dev.sqlite3"
   }
 }
