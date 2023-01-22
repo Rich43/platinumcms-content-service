@@ -1,5 +1,7 @@
-import { CreateContentDto } from './createContent.dto';
-
-export interface UpdateContentDto extends CreateContentDto {
+export interface UpdateContentDto {
     id: number;
+    name?: string;
+    displayName?: string;
+    content?: string;
+    published?: boolean;
 }
