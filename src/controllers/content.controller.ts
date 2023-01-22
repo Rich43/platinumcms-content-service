@@ -8,17 +8,17 @@ import {
 import { ContentService } from '../services'
 import { Service } from 'typedi';
 
-@JsonController()
+@JsonController('/content')
 @Service()
 export class ContentController {
     constructor(private contentService: ContentService) {}
 
-    @Get('/content')
+    @Get()
     async query() {
         return []
     }
 
-    @Post('/content')
+    @Post()
     async create(
         @BodyParam('username') name: string,
     ): Promise<boolean> {
