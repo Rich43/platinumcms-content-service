@@ -1,0 +1,17 @@
+{
+  "name": "uniapp-entity-service",
+  "host": "localhost",
+  "port": 3000,
+  "context": "/api/entity-service",
+  "logLevel": [
+    "info"
+  ],
+  "database": {
+    "host": "localhost",
+    "port": 3306,
+    "dialect": "mysql",
+    "user": "root",
+    "password": "Password1",
+    "database": "content"
+  }
+}
