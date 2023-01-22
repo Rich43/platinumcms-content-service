@@ -1,14 +1,38 @@
 {
   "name": "platinumcms-server-content",
   "version": "1.0.0",
+  "scripts": {
+    "serve": "nodemon -q src/listen.ts",
+    "initialise": "ts-node src/initialise.ts",
+    "initialise_prod": "cross-env NODE_ENV=production ts-node src/initialise.ts",
+    "migrator": "ts-node src/migrator.ts",
+    "migrator_up": "ts-node src/migrator.ts up",
+    "migrator_up_prod": "cross-env NODE_ENV=production ts-node src/migrator.ts up",
+    "migrator_down": "ts-node src/migrator.ts down",
+    "migrator_down_prod": "cross-env NODE_ENV=production ts-node src/migrator.ts down",
+    "seeder": "ts-node src/seeder.ts",
+    "seeder_up": "ts-node src/seeder.ts up",
+    "seeder_up_prod": "cross-env NODE_ENV=production ts-node src/seeder.ts up",
+    "seeder_down": "ts-node src/seeder.ts down",
+    "seeder_down_prod": "cross-env NODE_ENV=production ts-node src/seeder.ts down",
+    "test": "npm run test:lint && npm run test:coverage",
+    "start": "cross-env NODE_ENV=production ts-node src/listen.ts",
+    "pretest": "eslint --ignore-path .gitignore .",
+    "eslintfix": "eslint --ignore-path .gitignore . --fix",
+    "prepare": "husky install",
+    "test:unit": "cross-env NODE_ENV=test jest",
+    "test:coverage": "npm run test:unit"
+  },
   "dependencies": {
     "@koa/router": "^12.0.0",
+    "@types/config": "^3.3.0",
     "config": "^3.3.9",
     "cross-env": "^7.0.3",
     "http-status-codes": "^2.2.0",
     "koa": "^2.14.1",
     "koa-bodyparser": "^4.3.0",
     "koa-logger": "^3.2.1",
+    "nodemon": "^2.0.20",
     "npm": "^9.3.1",
     "routing-controllers": "^0.10.1",
     "ts-node": "^10.9.1",
@@ -19,6 +43,7 @@
   "devDependencies": {
     "@types/jest": "^29.2.6",
     "@types/koa": "^2.13.5",
-    "@types/koa__router": "^12.0.0"
+    "@types/koa__router": "^12.0.0",
+    "husky": "^8.0.3"
   }
 }

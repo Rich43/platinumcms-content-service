@@ -1,8 +1,8 @@
 {
-  "name": "uniapp-entity-service",
+  "name": "platinumcms-content-service",
   "host": "localhost",
   "port": 3000,
-  "context": "/api/entity-service",
+  "context": "/api/content-service",
   "logLevel": [
     "info"
   ],
