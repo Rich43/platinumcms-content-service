@@ -1,30 +1,40 @@
 import { DataSource } from 'typeorm';
 import { dbSettings } from '../config';
 import log from './logger';
+import * as models from '../models';
+import { dictToArray } from './utils';
+
+const remoteDBBase = {
+    host: dbSettings.dialectOptions.host,
+    port: dbSettings.dialectOptions.port,
+    username: dbSettings.dialectOptions.user,
+    password: dbSettings.dialectOptions.password,
+    database: dbSettings.dialectOptions.database,
+};
+
+const extraConfig = {
+    logging: true,
+    entities: dictToArray(models)
+}
 
 let AppDataSource: DataSource | undefined = undefined;
 if (dbSettings.dialect === 'mysql') {
     AppDataSource = new DataSource({
         type: dbSettings.dialect,
-        host: dbSettings.dialectOptions.host,
-        port: dbSettings.dialectOptions.port,
-        username: dbSettings.dialectOptions.user,
-        password: dbSettings.dialectOptions.password,
-        database: dbSettings.dialectOptions.database,
+        ...remoteDBBase,
+        ...extraConfig
     });
 } else if (dbSettings.dialect === 'postgres') {
         AppDataSource = new DataSource({
             type: dbSettings.dialect,
-            host: dbSettings.dialectOptions.host,
-            port: dbSettings.dialectOptions.port,
-            username: dbSettings.dialectOptions.user,
-            password: dbSettings.dialectOptions.password,
-            database: dbSettings.dialectOptions.database,
+            ...remoteDBBase,
+            ...extraConfig
         });
 } else if (dbSettings.dialect === 'sqlite') {
     AppDataSource = new DataSource({
         type: dbSettings.dialect,
-        database: dbSettings.dialectOptions.database!
+        database: dbSettings.dialectOptions.database!,
+        ...extraConfig
     });
 } else {
     log.error("Invalid DB Settings");
