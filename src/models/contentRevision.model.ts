@@ -1,19 +1,17 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { ContentModel } from './content.model';
 
-@Entity('content')
-export class ContentModel {
+@Entity('contentRevision')
+export class ContentRevisionModel {
     @PrimaryGeneratedColumn()
     id!: number;
 
     @Column()
-    name!: string;
-
-    @Column()
-    displayName!: string;
+    summary?: string;
 
     @Column()
     content!: string;
 
     @Column()
-    published!: boolean;
+    parent!: ContentModel;
 }
