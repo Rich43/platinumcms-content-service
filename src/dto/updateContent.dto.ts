@@ -3,5 +3,6 @@ export interface UpdateContentDto {
     name?: string;
     displayName?: string;
     content?: string;
+    summary?: string;
     published?: boolean;
 }

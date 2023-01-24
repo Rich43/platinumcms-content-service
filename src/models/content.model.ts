@@ -1,4 +1,5 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { ContentRevisionModel } from './contentRevision.model';
 
 @Entity('content')
 export class ContentModel {
@@ -12,8 +13,8 @@ export class ContentModel {
     displayName!: string;
 
     @Column()
-    content!: string;
+    published!: boolean;
 
     @Column()
-    published!: boolean;
+    contentRevisions!: ContentRevisionModel[];
 }

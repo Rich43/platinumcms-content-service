@@ -1,11 +1,12 @@
-import { Service } from 'typedi'
+import { Service } from 'typedi';
 import { CreateContentDto, IDDto, UpdateContentDto } from '../dto';
-import { ContentModel } from '../models/content.model';
+import { ContentModel, ContentRevisionModel } from '../models';
 import AppDataSource from '../setup/datasource';
 
 @Service()
 export class ContentService {
     contentRepository = AppDataSource.getRepository(ContentModel)
+    contentRevisionRepository = AppDataSource.getRepository(ContentRevisionModel)
 
     async list() {
         return await this.contentRepository.findAndCount();
@@ -17,7 +18,14 @@ export class ContentService {
 
     async create(ccDto: CreateContentDto) {
         const contentModel = new ContentModel();
-        Object.assign(contentModel, ccDto);
+        contentModel.name = ccDto.name;
+        contentModel.displayName = ccDto.displayName;
+        contentModel.published = ccDto.published;
+        const contentRevisionModel = new ContentRevisionModel();
+        contentRevisionModel.content = ccDto.content;
+        contentRevisionModel.summary = ccDto.summary;
+        contentRevisionModel.parent = contentModel;
+        contentModel.contentRevisions = [contentRevisionModel];
         await this.contentRepository.save(contentModel);
         return contentModel;
     }
@@ -25,7 +33,19 @@ export class ContentService {
     async update(ucDto: UpdateContentDto) {
         const contentModel = await this.contentRepository.findOneBy({id: ucDto.id});
         if (contentModel) {
-            Object.assign(contentModel, ucDto);
+            if (ucDto.name || ucDto.displayName || ucDto.published) {
+                contentModel.name = ucDto.name || contentModel.name;
+                contentModel.displayName = ucDto.displayName || contentModel.displayName;
+                contentModel.published = ucDto.published || contentModel.published;
+            }
+            if (ucDto.content || ucDto.summary) {
+                const contentRevisionModel = new ContentRevisionModel();
+                contentRevisionModel.content = ucDto.content || '';
+                contentRevisionModel.summary = ucDto.summary || '';
+                contentRevisionModel.parent = contentModel;
+                contentModel.contentRevisions.push(contentRevisionModel);
+                await this.contentRevisionRepository.save(contentRevisionModel);
+            }
             await this.contentRepository.save(contentModel);
             return contentModel;
         } else {
