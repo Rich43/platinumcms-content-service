@@ -1,11 +1,7 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { ContentRevisionModel } from './contentRevision.model';
 
-@Entity('content', {
-    orderBy: {
-        contentRevisions: 'DESC'
-    }
-})
+@Entity('content')
 export class ContentModel {
     @PrimaryGeneratedColumn()
     id!: number;

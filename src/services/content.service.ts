@@ -2,6 +2,17 @@ import { Service } from 'typedi';
 import { CreateContentDto, IDDto, UpdateContentDto } from '../dto';
 import { ContentModel, ContentRevisionModel } from '../models';
 import AppDataSource from '../setup/datasource';
+import { FindOneOptions } from 'typeorm';
+
+function getContentRepositoryOptions(): FindOneOptions<ContentModel> {
+    return {
+        order: {
+            contentRevisions: {
+                id: 'DESC'
+            }
+        }
+    };
+}
 
 @Service()
 export class ContentService {
@@ -9,11 +20,13 @@ export class ContentService {
     contentRevisionRepository = AppDataSource.getRepository(ContentRevisionModel)
 
     async list() {
-        return await this.contentRepository.findAndCount();
+        return await this.contentRepository.findAndCount(getContentRepositoryOptions());
     }
 
     async read(idDto: IDDto) {
-        return await this.contentRepository.findOneBy({id: idDto.id});
+        return await this.contentRepository.findOne({
+            where: {id: idDto.id}, ...getContentRepositoryOptions()
+        });
     }
 
     async create(ccDto: CreateContentDto) {
@@ -31,7 +44,9 @@ export class ContentService {
     }
 
     async update(ucDto: UpdateContentDto) {
-        const contentModel = await this.contentRepository.findOneBy({id: ucDto.id});
+        const contentModel = await this.contentRepository.findOne({
+            where: {id: ucDto.id}, ...getContentRepositoryOptions()
+        });
         if (contentModel) {
             if (ucDto.name || ucDto.displayName || ucDto.published) {
                 contentModel.name = ucDto.name || contentModel.name;
@@ -54,7 +69,9 @@ export class ContentService {
     }
 
     async delete(idDto: IDDto) {
-        const contentModel = await this.contentRepository.findOneBy({id: idDto.id});
+        const contentModel = await this.contentRepository.findOne({
+            where: {id: idDto.id}, ...getContentRepositoryOptions()
+        });
         if (contentModel) {
             await this.contentRepository.delete({id: contentModel.id});
             return true;
