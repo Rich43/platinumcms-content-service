@@ -1,12 +1,16 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { ContentRevisionModel } from './contentRevision.model';
 
-@Entity('content')
+@Entity('content', {
+    orderBy: {
+        contentRevisions: 'DESC'
+    }
+})
 export class ContentModel {
     @PrimaryGeneratedColumn()
     id!: number;
 
-    @Column()
+    @Column({ unique: true })
     name!: string;
 
     @Column()
@@ -15,6 +19,6 @@ export class ContentModel {
     @Column()
     published!: boolean;
 
-    @Column()
+    @OneToMany(() => ContentRevisionModel, (contentRevision) => contentRevision.parent, { cascade: true })
     contentRevisions!: ContentRevisionModel[];
 }
