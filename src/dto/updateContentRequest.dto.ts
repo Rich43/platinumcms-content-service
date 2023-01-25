@@ -1,4 +1,4 @@
-export interface UpdateContentDto {
+export interface UpdateContentRequestDto {
     id: number;
     name?: string;
     displayName?: string;

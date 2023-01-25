@@ -1,13 +1,7 @@
-import {
-    BadRequestError,
-    Post,
-    JsonController,
-    Get, Body, Patch, Param,
-} from 'routing-controllers';
-import { ContentService } from '../services'
+import { BadRequestError, Body, Get, JsonController, Param, Patch, Post, } from 'routing-controllers';
+import { ContentService } from '../services';
 import { Service } from 'typedi';
-import { CreateContentDto, UpdateContentDto } from '../dto';
-import { ContentModel } from '../models/content.model';
+import { ContentResponseDto, CreateContentRequestDto, UpdateContentRequestDto } from '../dto';
 
 @JsonController('/content')
 @Service()
@@ -20,21 +14,21 @@ export class ContentController {
     }
 
     @Get('/read/:id')
-    async read(@Param('id') id: number) {
+    async read(@Param('id') id: number): Promise<ContentResponseDto | null> {
         return await this.contentService.read({id});
     }
 
     @Post()
     async create(
-        @Body() ccDto: CreateContentDto,
-    ): Promise<ContentModel> {
+        @Body() ccDto: CreateContentRequestDto,
+    ): Promise<ContentResponseDto> {
         return await this.contentService.create(ccDto);
     }
 
     @Patch()
     async patch(
-        @Body() ucDto: UpdateContentDto,
-    ): Promise<ContentModel> {
+        @Body() ucDto: UpdateContentRequestDto,
+    ): Promise<ContentResponseDto> {
         const result = await this.contentService.update(ucDto);
         if (result === null) {
             throw new BadRequestError('Unable to find requested id');

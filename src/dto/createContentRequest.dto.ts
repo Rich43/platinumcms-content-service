@@ -1,4 +1,4 @@
-export interface CreateContentDto {
+export interface CreateContentRequestDto {
     name: string;
     displayName: string;
     summary?: string;
