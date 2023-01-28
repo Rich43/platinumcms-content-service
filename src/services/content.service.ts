@@ -1,39 +1,49 @@
 import { Service } from 'typedi';
-import {
-    ContentResponseDto,
-    ContentRevisionResponseDto,
-    CreateContentRequestDto,
-    IDDto,
-    UpdateContentRequestDto
-} from '../dto';
+import { CreateContentRequestDto, IDDto, UpdateContentRequestDto } from '../dto';
 import { ContentModel, ContentRevisionModel } from '../models';
 import AppDataSource from '../setup/datasource';
 import { FindOneOptions } from 'typeorm';
+import {
+    ContentModelsToContentResponseDtosConverter,
+    ContentModelToContentResponseDtoConverter,
+    ContentRevisionModelToContentRevisionResponseDtoConverter,
+    CreateContentRequestDtoToContentModelConverter,
+    CreateContentRequestDtoToContentRevisionModelConverter
+} from '../converters';
 
 @Service()
 export class ContentService {
     contentRepository = AppDataSource.getRepository(ContentModel)
     contentRevisionRepository = AppDataSource.getRepository(ContentRevisionModel)
 
+    constructor(private contentModelToContentResponseDtoConverter: ContentModelToContentResponseDtoConverter,
+                private contentModelsToContentResponseDtosConverter: ContentModelsToContentResponseDtosConverter,
+                private contentRevisionModelToContentRevisionResponseDtoConverter:
+                    ContentRevisionModelToContentRevisionResponseDtoConverter,
+                private createContentRequestDtoToContentModelConverter:
+                    CreateContentRequestDtoToContentModelConverter,
+                private createContentRequestDtoToContentRevisionModelConverter:
+                    CreateContentRequestDtoToContentRevisionModelConverter) {}
+
     async list() {
         const results = await this.contentRepository.findAndCount(this.getContentRepositoryOptions());
-        return [this.massageContentList(results[0]), results[1]];
+        return [this.contentModelsToContentResponseDtosConverter.convert(results[0]), results[1]];
     }
 
     async read(idDto: IDDto) {
         const result = await this.findOneById(idDto);
         if (result) {
-            return this.massageContentAndAddRevisions(result);
+            return this.convertContentAndAddRevisions(result);
         }
         return null;
     }
 
     async create(ccDto: CreateContentRequestDto) {
-        const contentModel = this.contentModelFromRequestDto(ccDto);
-        const contentRevisionModel = this.contentRevisionModelFromRequestDto(ccDto, contentModel);
+        const contentModel = this.createContentRequestDtoToContentModelConverter.convert(ccDto);
+        const contentRevisionModel = this.createContentRequestDtoToContentRevisionModelConverter.convert(ccDto);
         contentModel.contentRevisions = [contentRevisionModel];
         await this.contentRepository.save(contentModel);
-        return this.massageContentAndAddRevisions(contentModel);
+        return this.convertContentAndAddRevisions(contentModel);
     }
 
     async update(ucDto: UpdateContentRequestDto) {
@@ -75,26 +85,14 @@ export class ContentService {
         });
     }
 
-    private massageContentAndAddRevisions(contentModel: ContentModel) {
-        const contentResponseDto = this.massageContent(contentModel);
-        this.addContentRevisions(contentModel, contentResponseDto);
+    private convertContentAndAddRevisions(contentModel: ContentModel) {
+        const contentResponseDto = this.contentModelToContentResponseDtoConverter.convert(contentModel);
+        for (const contentRevision of contentModel.contentRevisions) {
+            contentResponseDto.contentRevisions.push(
+                this.contentRevisionModelToContentRevisionResponseDtoConverter.convert(contentRevision)
+            );
+        }
         return contentResponseDto;
-    }
-
-    private contentRevisionModelFromRequestDto(ccDto: CreateContentRequestDto, contentModel: ContentModel) {
-        const contentRevisionModel = new ContentRevisionModel();
-        contentRevisionModel.content = ccDto.content;
-        contentRevisionModel.summary = ccDto.summary;
-        contentRevisionModel.parent = contentModel;
-        return contentRevisionModel;
-    }
-
-    private contentModelFromRequestDto(ccDto: CreateContentRequestDto) {
-        const contentModel = new ContentModel();
-        contentModel.name = ccDto.name;
-        contentModel.displayName = ccDto.displayName;
-        contentModel.published = ccDto.published;
-        return contentModel;
     }
 
     private getContentRepositoryOptions(): FindOneOptions<ContentModel> {
@@ -105,39 +103,5 @@ export class ContentService {
                 }
             }
         };
-    }
-
-    private massageContent(content: ContentModel): ContentResponseDto {
-        return {
-            id: content.id,
-            name: content.name,
-            displayName: content.displayName,
-            published: content.published,
-            contentRevisions: []
-        };
-    }
-
-    private massageContentRevision(contentRevision: ContentRevisionModel): ContentRevisionResponseDto {
-        return {
-            id: contentRevision.id,
-            content: contentRevision.content,
-            summary: contentRevision.summary
-        };
-    }
-
-    private massageContentList(contentList: ContentModel[]) {
-        const massagedResults: ContentResponseDto[] = [];
-        for (const listItem of contentList) {
-            const convertedResult = this.massageContent(listItem);
-            this.addContentRevisions(listItem, convertedResult);
-            massagedResults.push(convertedResult);
-        }
-        return massagedResults;
-    }
-
-    private addContentRevisions(listItem: ContentModel, convertedResult: ContentResponseDto) {
-        for (const contentRevision of listItem.contentRevisions) {
-            convertedResult.contentRevisions.push(this.massageContentRevision(contentRevision));
-        }
     }
 }
