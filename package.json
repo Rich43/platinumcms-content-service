@@ -4,25 +4,14 @@
   "scripts": {
     "serve": "nodemon -q src/listen.ts",
     "debug": "ts-node src/listen.ts",
-    "initialise": "ts-node src/initialise.ts",
-    "initialise_prod": "cross-env NODE_ENV=production ts-node src/initialise.ts",
-    "migrator": "ts-node src/migrator.ts",
-    "migrator_up": "ts-node src/migrator.ts up",
-    "migrator_up_prod": "cross-env NODE_ENV=production ts-node src/migrator.ts up",
-    "migrator_down": "ts-node src/migrator.ts down",
-    "migrator_down_prod": "cross-env NODE_ENV=production ts-node src/migrator.ts down",
-    "seeder": "ts-node src/seeder.ts",
-    "seeder_up": "ts-node src/seeder.ts up",
-    "seeder_up_prod": "cross-env NODE_ENV=production ts-node src/seeder.ts up",
-    "seeder_down": "ts-node src/seeder.ts down",
-    "seeder_down_prod": "cross-env NODE_ENV=production ts-node src/seeder.ts down",
     "test": "npm run test:lint && npm run test:coverage",
     "start": "cross-env NODE_ENV=production ts-node src/listen.ts",
     "pretest": "eslint --ignore-path .gitignore .",
     "eslintfix": "eslint --ignore-path .gitignore . --fix",
     "prepare": "husky install",
     "test:unit": "cross-env NODE_ENV=test jest",
-    "test:coverage": "npm run test:unit"
+    "test:coverage": "npm run test:unit",
+    "compile": "tsc"
   },
   "dependencies": {
     "@types/config": "^3.3.0",
@@ -43,7 +32,7 @@
     "routing-controllers": "^0.10.1",
     "sqlite3": "^5.1.4",
     "ts-node": "^10.9.1",
-    "typedi": "^0.10.0",
+    "tsyringe": "^4.7.0",
     "typeorm": "^0.3.11",
     "typescript": "^4.9.4",
     "winston": "^3.8.2"

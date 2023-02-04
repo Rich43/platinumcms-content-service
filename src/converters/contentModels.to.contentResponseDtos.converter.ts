@@ -1,13 +1,13 @@
 import { ContentModel } from '../models';
 import { Converter } from '../interfaces';
 import { ContentResponseDto } from '../dto';
-import { Service } from 'typedi';
 import { ContentModelToContentResponseDtoConverter } from './contentModel.to.contentResponseDto.converter';
 import {
     ContentRevisionModelToContentRevisionResponseDtoConverter
 } from './contentRevisionModel.to.contentRevisionResponseDto.converter';
+import { singleton } from 'tsyringe';
 
-@Service()
+@singleton()
 export class ContentModelsToContentResponseDtosConverter implements Converter<ContentModel[], ContentResponseDto[]> {
     constructor(private contentModelToContentResponseDtoConverter: ContentModelToContentResponseDtoConverter,
                 private contentRevisionModelToContentRevisionResponseDtoConverter :

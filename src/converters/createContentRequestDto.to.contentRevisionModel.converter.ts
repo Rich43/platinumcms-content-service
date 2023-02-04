@@ -1,9 +1,9 @@
-import { Service } from 'typedi';
 import { ContentRevisionModel } from '../models';
 import { Converter } from '../interfaces';
 import { CreateContentRequestDto } from '../dto';
+import { singleton } from 'tsyringe';
 
-@Service()
+@singleton()
 export class CreateContentRequestDtoToContentRevisionModelConverter implements Converter<CreateContentRequestDto, ContentRevisionModel> {
     convert(ccDto: CreateContentRequestDto): ContentRevisionModel {
         const contentRevisionModel = new ContentRevisionModel();

@@ -1,8 +1,8 @@
-import { ExpressMiddlewareInterface, Middleware } from 'routing-controllers'
-import { Service } from 'typedi'
+import { ExpressMiddlewareInterface, Middleware } from 'routing-controllers';
+import { singleton } from 'tsyringe';
 
-@Middleware({ type: 'before' })
-@Service()
+@Middleware({type: 'before'})
+@singleton()
 export class HeaderMiddleware implements ExpressMiddlewareInterface {
     use(request: any, response: any, next?: (err?: any) => any): any {
         response.set('Access-Control-Allow-Methods', 'GET,HEAD,PUT,POST,DELETE,PATCH')

@@ -1,15 +1,17 @@
 import 'reflect-metadata';
 import express, { Express } from 'express';
 import { serverSettings } from './config';
-import { Container } from 'typedi';
 import { routingConfigs } from './setup/routing.options';
 import { useContainer, useExpressServer } from 'routing-controllers';
 import log from './setup/logger';
 import morganMiddleware from './setup/morgan.middleware';
 import AppDataSource from './setup/datasource';
+import { container } from 'tsyringe';
+import { SyringeAdapter } from './adapters';
+import { ContentRepository, ContentRevisionRepository } from './repositories';
 
 export function createServer() {
-    log.info("Initialising server...");
+    log.info('Initialising server...');
     AppDataSource.initialize()
         .then(() => {
             log.info(`Data Source has been initialized! Dialect: ${AppDataSource.options.type} Database: ${AppDataSource.options.database}`);
@@ -20,7 +22,10 @@ export function createServer() {
         });
     const app = express();
     app.use(morganMiddleware);
-    useContainer(Container);
+    container.register('AppDataSource', {useValue: AppDataSource});
+    container.register('ContentRepository', {useValue: ContentRepository(AppDataSource)});
+    container.register('ContentRevisionRepository', {useValue: ContentRevisionRepository(AppDataSource)});
+    useContainer(new SyringeAdapter(container));
     return useExpressServer(app, routingConfigs);
 }
 

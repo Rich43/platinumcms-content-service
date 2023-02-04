@@ -1,9 +1,9 @@
 import { ContentModel } from '../models';
 import { Converter } from '../interfaces';
 import { ContentResponseDto } from '../dto';
-import { Service } from 'typedi';
+import { singleton } from 'tsyringe';
 
-@Service()
+@singleton()
 export class ContentModelToContentResponseDtoConverter implements Converter<ContentModel, ContentResponseDto> {
     public convert(content: ContentModel): ContentResponseDto {
         return {

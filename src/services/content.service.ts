@@ -1,8 +1,6 @@
-import { Service } from 'typedi';
 import { CreateContentRequestDto, IDDto, UpdateContentRequestDto } from '../dto';
 import { ContentModel, ContentRevisionModel } from '../models';
-import AppDataSource from '../setup/datasource';
-import { FindOneOptions } from 'typeorm';
+import { FindOneOptions, Repository } from 'typeorm';
 import {
     ContentModelsToContentResponseDtosConverter,
     ContentModelToContentResponseDtoConverter,
@@ -10,12 +8,11 @@ import {
     CreateContentRequestDtoToContentModelConverter,
     CreateContentRequestDtoToContentRevisionModelConverter
 } from '../converters';
+import { inject, singleton } from 'tsyringe';
+import { ContentRevisionRepository } from '../repositories';
 
-@Service()
+@singleton()
 export class ContentService {
-    contentRepository = AppDataSource.getRepository(ContentModel)
-    contentRevisionRepository = AppDataSource.getRepository(ContentRevisionModel)
-
     constructor(private contentModelToContentResponseDtoConverter: ContentModelToContentResponseDtoConverter,
                 private contentModelsToContentResponseDtosConverter: ContentModelsToContentResponseDtosConverter,
                 private contentRevisionModelToContentRevisionResponseDtoConverter:
@@ -23,7 +20,10 @@ export class ContentService {
                 private createContentRequestDtoToContentModelConverter:
                     CreateContentRequestDtoToContentModelConverter,
                 private createContentRequestDtoToContentRevisionModelConverter:
-                    CreateContentRequestDtoToContentRevisionModelConverter) {}
+                    CreateContentRequestDtoToContentRevisionModelConverter,
+                @inject('ContentRepository') private contentRepository: Repository<ContentModel>,
+                @inject('ContentRevisionRepository') private contentRevisionRepository: Repository<ContentRevisionModel>) {
+    }
 
     async list() {
         const results = await this.contentRepository.findAndCount(this.getContentRepositoryOptions());

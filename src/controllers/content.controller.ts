@@ -1,10 +1,10 @@
 import { BadRequestError, Body, Get, JsonController, Param, Patch, Post, } from 'routing-controllers';
 import { ContentService } from '../services';
-import { Service } from 'typedi';
 import { ContentResponseDto, CreateContentRequestDto, UpdateContentRequestDto } from '../dto';
+import { singleton } from 'tsyringe';
 
 @JsonController('/content')
-@Service()
+@singleton()
 export class ContentController {
     constructor(private contentService: ContentService) {}
 
