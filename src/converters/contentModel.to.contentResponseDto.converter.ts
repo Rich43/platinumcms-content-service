@@ -25,10 +25,12 @@ export class ContentModelToContentResponseDtoConverter implements Converter<Cont
     }
 
     private addContentRevisions(contentModel: ContentModel, contentResponseDto: ContentResponseDto) {
-        for (const contentRevision of contentModel.contentRevisions) {
-            contentResponseDto.contentRevisions.push(
-                this.contentRevisionModelToContentRevisionResponseDtoConverter.convert(contentRevision)
-            );
+        if (contentModel.contentRevisions) {
+            for (const contentRevision of contentModel.contentRevisions) {
+                contentResponseDto.contentRevisions.push(
+                    this.contentRevisionModelToContentRevisionResponseDtoConverter.convert(contentRevision)
+                );
+            }
         }
     }
 }
