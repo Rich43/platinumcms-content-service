@@ -1,6 +1,30 @@
 import { ContentModel } from '../models';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, FindOneOptions, Repository } from 'typeorm';
 
-export function ContentRepository(AppDataSource: DataSource): Repository<ContentModel> {
-    return AppDataSource.getRepository(ContentModel);
+export type ExtendedContentRepository = Repository<ContentModel> & {
+    findOneByIdWithOptions(id: number): Promise<ContentModel | null>;
+    findAndCountWithOptions(): Promise<[ContentModel[], number]>;
+}
+
+function getContentRepositoryOptions(): FindOneOptions<ContentModel> {
+    return {
+        order: {
+            contentRevisions: {
+                id: 'DESC'
+            }
+        }
+    };
+}
+
+export function ContentRepository(AppDataSource: DataSource): ExtendedContentRepository {
+    return AppDataSource.getRepository(ContentModel).extend({
+        findOneByIdWithOptions(id: number) {
+            return this.findOne({
+                where: {id}, ...getContentRepositoryOptions()
+            });
+        },
+        findAndCountWithOptions() {
+            return this.findAndCount(getContentRepositoryOptions());
+        }
+    });
 }

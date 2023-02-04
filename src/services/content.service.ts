@@ -1,6 +1,6 @@
 import { CreateContentRequestDto, IDDto, UpdateContentRequestDto } from '../dto';
 import { ContentModel, ContentRevisionModel } from '../models';
-import { FindOneOptions, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import {
     ContentModelsToContentResponseDtosConverter,
     ContentModelToContentResponseDtoConverter,
@@ -9,7 +9,7 @@ import {
     CreateContentRequestDtoToContentRevisionModelConverter
 } from '../converters';
 import { inject, singleton } from 'tsyringe';
-import { ContentRevisionRepository } from '../repositories';
+import { ExtendedContentRepository } from '../repositories';
 
 @singleton()
 export class ContentService {
@@ -21,17 +21,17 @@ export class ContentService {
                     CreateContentRequestDtoToContentModelConverter,
                 private createContentRequestDtoToContentRevisionModelConverter:
                     CreateContentRequestDtoToContentRevisionModelConverter,
-                @inject('ContentRepository') private contentRepository: Repository<ContentModel>,
+                @inject('ContentRepository') private contentRepository: ExtendedContentRepository,
                 @inject('ContentRevisionRepository') private contentRevisionRepository: Repository<ContentRevisionModel>) {
     }
 
     async list() {
-        const results = await this.contentRepository.findAndCount(this.getContentRepositoryOptions());
+        const results = await this.contentRepository.findAndCountWithOptions();
         return [this.contentModelsToContentResponseDtosConverter.convert(results[0]), results[1]];
     }
 
     async read(idDto: IDDto) {
-        const result = await this.findOneById(idDto);
+        const result = await this.contentRepository.findOneByIdWithOptions(idDto.id);
         if (result) {
             return this.convertContentAndAddRevisions(result);
         }
@@ -47,7 +47,7 @@ export class ContentService {
     }
 
     async update(ucDto: UpdateContentRequestDto) {
-        const contentModel = await this.findOneById({id: ucDto.id});
+        const contentModel = await this.contentRepository.findOneByIdWithOptions(ucDto.id);
         if (contentModel) {
             if (ucDto.name || ucDto.displayName || ucDto.published) {
                 contentModel.name = ucDto.name || contentModel.name;
@@ -70,19 +70,13 @@ export class ContentService {
     }
 
     async delete(idDto: IDDto) {
-        const contentModel = await this.findOneById(idDto);
+        const contentModel = await this.contentRepository.findOneByIdWithOptions(idDto.id);
         if (contentModel) {
             await this.contentRepository.delete({id: contentModel.id});
             return true;
         } else {
             return false;
         }
-    }
-
-    private async findOneById(idDto: IDDto) {
-        return await this.contentRepository.findOne({
-            where: {id: idDto.id}, ...this.getContentRepositoryOptions()
-        });
     }
 
     private convertContentAndAddRevisions(contentModel: ContentModel) {
@@ -93,15 +87,5 @@ export class ContentService {
             );
         }
         return contentResponseDto;
-    }
-
-    private getContentRepositoryOptions(): FindOneOptions<ContentModel> {
-        return {
-            order: {
-                contentRevisions: {
-                    id: 'DESC'
-                }
-            }
-        };
     }
 }

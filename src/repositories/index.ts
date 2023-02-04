@@ -1,2 +1,2 @@
-export { ContentRepository } from './content.repository';
+export { ContentRepository, ExtendedContentRepository } from './content.repository';
 export { ContentRevisionRepository } from './contentRevision.repository';
