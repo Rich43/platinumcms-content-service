@@ -1,10 +1,9 @@
 import { CreateContentRequestDto, IDDto, UpdateContentRequestDto } from '../dto';
-import { ContentModel, ContentRevisionModel } from '../models';
+import { ContentRevisionModel } from '../models';
 import { Repository } from 'typeorm';
 import {
     ContentModelsToContentResponseDtosConverter,
     ContentModelToContentResponseDtoConverter,
-    ContentRevisionModelToContentRevisionResponseDtoConverter,
     CreateContentRequestDtoToContentModelConverter,
     CreateContentRequestDtoToContentRevisionModelConverter
 } from '../converters';
@@ -15,8 +14,6 @@ import { ExtendedContentRepository } from '../repositories';
 export class ContentService {
     constructor(private contentModelToContentResponseDtoConverter: ContentModelToContentResponseDtoConverter,
                 private contentModelsToContentResponseDtosConverter: ContentModelsToContentResponseDtosConverter,
-                private contentRevisionModelToContentRevisionResponseDtoConverter:
-                    ContentRevisionModelToContentRevisionResponseDtoConverter,
                 private createContentRequestDtoToContentModelConverter:
                     CreateContentRequestDtoToContentModelConverter,
                 private createContentRequestDtoToContentRevisionModelConverter:
@@ -33,7 +30,7 @@ export class ContentService {
     async read(idDto: IDDto) {
         const result = await this.contentRepository.findOneByIdWithOptions(idDto.id);
         if (result) {
-            return this.convertContentAndAddRevisions(result);
+            return this.contentModelToContentResponseDtoConverter.convert(result);
         }
         return null;
     }
@@ -43,7 +40,7 @@ export class ContentService {
         const contentRevisionModel = this.createContentRequestDtoToContentRevisionModelConverter.convert(ccDto);
         contentModel.contentRevisions = [contentRevisionModel];
         await this.contentRepository.save(contentModel);
-        return this.convertContentAndAddRevisions(contentModel);
+        return this.contentModelToContentResponseDtoConverter.convert(contentModel);
     }
 
     async update(ucDto: UpdateContentRequestDto) {
@@ -63,7 +60,7 @@ export class ContentService {
                 await this.contentRevisionRepository.save(contentRevisionModel);
             }
             await this.contentRepository.save(contentModel);
-            return contentModel;
+            return this.contentModelToContentResponseDtoConverter.convert(contentModel);
         } else {
             return null;
         }
@@ -77,15 +74,5 @@ export class ContentService {
         } else {
             return false;
         }
-    }
-
-    private convertContentAndAddRevisions(contentModel: ContentModel) {
-        const contentResponseDto = this.contentModelToContentResponseDtoConverter.convert(contentModel);
-        for (const contentRevision of contentModel.contentRevisions) {
-            contentResponseDto.contentRevisions.push(
-                this.contentRevisionModelToContentRevisionResponseDtoConverter.convert(contentRevision)
-            );
-        }
-        return contentResponseDto;
     }
 }
