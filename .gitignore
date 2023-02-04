@@ -6,3 +6,4 @@
 /.idea/workspace.xml
 /.idea/platinumcms-content-service.iml
 /platinumcms-content-service-dev.sqlite3
+/dist/
