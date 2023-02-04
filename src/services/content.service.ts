@@ -1,11 +1,12 @@
 import { CreateContentRequestDto, IDDto, UpdateContentRequestDto } from '../dto';
-import { ContentRevisionModel } from '../models';
+import { ContentModel, ContentRevisionModel } from '../models';
 import { Repository } from 'typeorm';
 import {
     ContentModelsToContentResponseDtosConverter,
     ContentModelToContentResponseDtoConverter,
     CreateContentRequestDtoToContentModelConverter,
-    CreateContentRequestDtoToContentRevisionModelConverter
+    CreateContentRequestDtoToContentRevisionModelConverter,
+    UpdateContentRequestDtoToContentRevisionModelConverter
 } from '../converters';
 import { inject, singleton } from 'tsyringe';
 import { ExtendedContentRepository } from '../repositories';
@@ -18,6 +19,8 @@ export class ContentService {
                     CreateContentRequestDtoToContentModelConverter,
                 private createContentRequestDtoToContentRevisionModelConverter:
                     CreateContentRequestDtoToContentRevisionModelConverter,
+                private updateContentRequestDtoToContentRevisionModelConverter:
+                    UpdateContentRequestDtoToContentRevisionModelConverter,
                 @inject('ContentRepository') private contentRepository: ExtendedContentRepository,
                 @inject('ContentRevisionRepository') private contentRevisionRepository: Repository<ContentRevisionModel>) {
     }
@@ -47,14 +50,10 @@ export class ContentService {
         const contentModel = await this.contentRepository.findOneByIdWithOptions(ucDto.id);
         if (contentModel) {
             if (ucDto.name || ucDto.displayName || ucDto.published) {
-                contentModel.name = ucDto.name || contentModel.name;
-                contentModel.displayName = ucDto.displayName || contentModel.displayName;
-                contentModel.published = ucDto.published || contentModel.published;
+                this.updateContentModelFromUpdateContentDTO(contentModel, ucDto);
             }
             if (ucDto.content || ucDto.summary) {
-                const contentRevisionModel = new ContentRevisionModel();
-                contentRevisionModel.content = ucDto.content || '';
-                contentRevisionModel.summary = ucDto.summary || '';
+                const contentRevisionModel = this.updateContentRequestDtoToContentRevisionModelConverter.convert(ucDto);
                 contentRevisionModel.parent = contentModel;
                 contentModel.contentRevisions.push(contentRevisionModel);
                 await this.contentRevisionRepository.save(contentRevisionModel);
@@ -64,6 +63,12 @@ export class ContentService {
         } else {
             return null;
         }
+    }
+
+    private updateContentModelFromUpdateContentDTO(contentModel: ContentModel, ucDto: UpdateContentRequestDto) {
+        contentModel.name = ucDto.name || contentModel.name;
+        contentModel.displayName = ucDto.displayName || contentModel.displayName;
+        contentModel.published = ucDto.published || contentModel.published;
     }
 
     async delete(idDto: IDDto) {

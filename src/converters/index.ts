@@ -3,3 +3,6 @@ export { CreateContentRequestDtoToContentRevisionModelConverter } from './create
 export { ContentModelToContentResponseDtoConverter } from './contentModel.to.contentResponseDto.converter';
 export { ContentRevisionModelToContentRevisionResponseDtoConverter } from './contentRevisionModel.to.contentRevisionResponseDto.converter';
 export { ContentModelsToContentResponseDtosConverter } from './contentModels.to.contentResponseDtos.converter';
+export {
+    UpdateContentRequestDtoToContentRevisionModelConverter
+} from './updateContentRequestDto.to.contentRevisionModel.converter';
