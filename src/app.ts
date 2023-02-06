@@ -2,7 +2,8 @@ import 'reflect-metadata';
 import express, { Express } from 'express';
 import { serverSettings } from './config';
 import { routingConfigs } from './setup/routing.options';
-import { useContainer, useExpressServer } from 'routing-controllers';
+import { useContainer as useContainerRouting, useExpressServer } from 'routing-controllers';
+import { useContainer as useContainerValidator } from 'class-validator';
 import log from './setup/logger';
 import morganMiddleware from './setup/morgan.middleware';
 import AppDataSource from './setup/datasource';
@@ -25,7 +26,9 @@ export function createServer() {
     container.register('AppDataSource', {useValue: AppDataSource});
     container.register('ContentRepository', {useValue: ContentRepository(AppDataSource)});
     container.register('ContentRevisionRepository', {useValue: ContentRevisionRepository(AppDataSource)});
-    useContainer(new SyringeAdapter(container));
+    const syringeAdapter = new SyringeAdapter(container);
+    useContainerRouting(syringeAdapter);
+    useContainerValidator(syringeAdapter);
     return useExpressServer(app, routingConfigs);
 }
 
