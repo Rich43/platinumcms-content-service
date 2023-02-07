@@ -12,37 +12,37 @@ const remoteDBBase = {
     database: dbSettings.dialectOptions.database,
 };
 
-const extraConfig = {
+export const extraConfig = {
     logging: true,
     synchronize: true,
     entities: dictToArray(models),
     subscribers: [],
     migrations: [],
-}
+};
 
-let AppDataSource: DataSource | undefined = undefined;
-if (dbSettings.dialect === 'mysql') {
-    AppDataSource = new DataSource({
-        type: dbSettings.dialect,
-        ...remoteDBBase,
-        ...extraConfig
-    });
-} else if (dbSettings.dialect === 'postgres') {
+export function createAppDataSource(extraConfig: object) {
+    let AppDataSource: DataSource | undefined = undefined;
+    if (dbSettings.dialect === 'mysql') {
         AppDataSource = new DataSource({
             type: dbSettings.dialect,
             ...remoteDBBase,
             ...extraConfig
         });
-} else if (dbSettings.dialect === 'sqlite') {
-    AppDataSource = new DataSource({
-        type: dbSettings.dialect,
-        database: dbSettings.dialectOptions.database!,
-        ...extraConfig
-    });
-} else {
-    log.error("Invalid DB Settings");
-    process.exit(1);
+    } else if (dbSettings.dialect === 'postgres') {
+        AppDataSource = new DataSource({
+            type: dbSettings.dialect,
+            ...remoteDBBase,
+            ...extraConfig
+        });
+    } else if (dbSettings.dialect === 'sqlite') {
+        AppDataSource = new DataSource({
+            type: dbSettings.dialect,
+            database: dbSettings.dialectOptions.database!,
+            ...extraConfig
+        });
+    } else {
+        log.error('Invalid DB Settings');
+        process.exit(1);
+    }
+    return AppDataSource;
 }
-
-
-export default AppDataSource!;

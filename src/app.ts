@@ -6,12 +6,13 @@ import { useContainer as useContainerRouting, useExpressServer } from 'routing-c
 import { useContainer as useContainerValidator } from 'class-validator';
 import log from './setup/logger';
 import morganMiddleware from './setup/morgan.middleware';
-import AppDataSource from './setup/datasource';
+import { createAppDataSource, extraConfig } from './setup/datasource';
 import { container } from 'tsyringe';
 import { SyringeAdapter } from './adapters';
 import { ContentRepository, ContentRevisionRepository } from './repositories';
 
 export function createServer() {
+    const AppDataSource = createAppDataSource(extraConfig);
     log.info('Initialising server...');
     AppDataSource.initialize()
         .then(() => {
