@@ -1,4 +1,4 @@
-import { IsBoolean, IsString, Length, MinLength, ValidateIf } from 'class-validator';
+import { IsBoolean, IsString, Length, MaxLength, MinLength, ValidateIf } from 'class-validator';
 
 export class CreateContentRequestDto {
     private _name!: string;
@@ -32,6 +32,7 @@ export class CreateContentRequestDto {
     }
 
     @ValidateIf((val) => val.name !== undefined)
+    @MaxLength(65535)
     @IsString()
     set summary(value: string | undefined) {
         this._summary = value === undefined ? '' : value;

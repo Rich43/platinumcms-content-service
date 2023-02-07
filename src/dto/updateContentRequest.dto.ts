@@ -1,4 +1,4 @@
-import { IsBoolean, IsInt, IsString, Length, Min, MinLength, ValidateIf } from 'class-validator';
+import { IsBoolean, IsInt, IsString, Length, MaxLength, Min, MinLength, ValidateIf } from 'class-validator';
 
 export class UpdateContentRequestDto {
     private _id!: number;
@@ -59,6 +59,7 @@ export class UpdateContentRequestDto {
     }
 
     @ValidateIf((val) => val.name !== undefined)
+    @MaxLength(65535)
     @IsString()
     set summary(value: string | undefined) {
         this._summary = value;
