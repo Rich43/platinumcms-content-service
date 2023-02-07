@@ -6,10 +6,10 @@ export class ContentModel {
     @PrimaryGeneratedColumn()
     id!: number;
 
-    @Column({ unique: true })
+    @Column({unique: true, length: 255})
     name!: string;
 
-    @Column()
+    @Column({length: 65535})
     displayName!: string;
 
     @Column()

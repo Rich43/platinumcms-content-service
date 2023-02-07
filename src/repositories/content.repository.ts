@@ -8,6 +8,9 @@ export type ExtendedContentRepository = Repository<ContentModel> & {
 
 function getContentRepositoryOptions(): FindOneOptions<ContentModel> {
     return {
+        relations: {
+            contentRevisions: true
+        },
         order: {
             contentRevisions: {
                 id: 'DESC'

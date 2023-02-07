@@ -6,10 +6,10 @@ export class ContentRevisionModel {
     @PrimaryGeneratedColumn()
     id!: number;
 
-    @Column()
+    @Column({length: 65535})
     summary?: string;
 
-    @Column()
+    @Column('text')
     content!: string;
 
     @ManyToOne(() => ContentModel, (content) => content.contentRevisions)
