@@ -1,4 +1,4 @@
-import { IsBoolean, IsString, Length, MinLength } from 'class-validator';
+import { IsBoolean, IsString, Length, MinLength, ValidateIf } from 'class-validator';
 
 export class CreateContentRequestDto {
     private _name!: string;
@@ -10,7 +10,7 @@ export class CreateContentRequestDto {
     @Length(2, 255)
     @IsString()
     set name(value: string) {
-        this._name = String(value);
+        this._name = value;
     }
 
     private _displayName!: string;
@@ -22,18 +22,19 @@ export class CreateContentRequestDto {
     @Length(2, 65535)
     @IsString()
     set displayName(value: string) {
-        this._displayName = String(value);
+        this._displayName = value;
     }
 
-    private _summary!: string;
+    private _summary?: string;
 
-    get summary(): string {
+    get summary(): string | undefined {
         return this._summary;
     }
 
+    @ValidateIf((val) => val.name !== undefined)
     @IsString()
-    set summary(value: string) {
-        this._summary = String(value || '');
+    set summary(value: string | undefined) {
+        this._summary = value === undefined ? '' : value;
     }
 
     private _content!: string;
@@ -45,7 +46,7 @@ export class CreateContentRequestDto {
     @MinLength(1)
     @IsString()
     set content(value: string) {
-        this._content = String(value);
+        this._content = value;
     }
 
     private _published!: boolean;
@@ -56,6 +57,6 @@ export class CreateContentRequestDto {
 
     @IsBoolean()
     set published(value: boolean) {
-        this._published = Boolean(value);
+        this._published = value;
     }
 }

@@ -15,64 +15,64 @@ export class UpdateContentRequestDto {
 
     private _name?: string;
 
-    get name(): string {
-        return this._name || '';
+    get name(): string | undefined {
+        return this._name;
     }
 
     @ValidateIf((val) => val.name !== undefined)
     @Length(2, 255)
     @IsString()
     set name(value: string | undefined) {
-        this._name = String(value || '');
+        this._name = value;
     }
 
     private _displayName?: string;
 
-    get displayName(): string {
-        return this._displayName || '';
+    get displayName(): string | undefined {
+        return this._displayName;
     }
 
     @ValidateIf((val) => val.name !== undefined)
     @Length(2, 65535)
     @IsString()
-    set displayName(value: string) {
-        this._displayName = String(value || '');
+    set displayName(value: string | undefined) {
+        this._displayName = value;
     }
 
     private _content?: string;
 
-    get content(): string {
-        return this._content || '';
+    get content(): string | undefined {
+        return this._content;
     }
 
     @ValidateIf((val) => val.name !== undefined)
     @MinLength(1)
     @IsString()
-    set content(value: string) {
-        this._content = String(value || '');
+    set content(value: string | undefined) {
+        this._content = value;
     }
 
     private _summary?: string;
 
-    get summary(): string {
-        return this._summary || '';
+    get summary(): string | undefined {
+        return this._summary;
     }
 
     @ValidateIf((val) => val.name !== undefined)
     @IsString()
-    set summary(value: string) {
-        this._summary = String(value || '');
+    set summary(value: string | undefined) {
+        this._summary = value;
     }
 
     private _published?: boolean;
 
-    get published(): boolean {
-        return this._published || false;
+    get published(): boolean | undefined {
+        return this._published;
     }
 
     @ValidateIf((val) => val.name !== undefined)
     @IsBoolean()
-    set published(value: boolean) {
-        this._published = Boolean(value);
+    set published(value: boolean | undefined) {
+        this._published = value;
     }
 }
