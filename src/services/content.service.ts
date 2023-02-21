@@ -1,6 +1,6 @@
 import { CreateContentRequestDto, IDDto, UpdateContentRequestDto } from '../dto';
 import { ContentModel, ContentRevisionModel } from '../models';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import {
     ContentModelsToContentResponseDtosConverter,
     ContentModelToContentResponseDtoConverter,
@@ -22,7 +22,8 @@ export class ContentService {
                 private updateContentRequestDtoToContentRevisionModelConverter:
                     UpdateContentRequestDtoToContentRevisionModelConverter,
                 @inject('ContentRepository') private contentRepository: ExtendedContentRepository,
-                @inject('ContentRevisionRepository') private contentRevisionRepository: Repository<ContentRevisionModel>) {
+                @inject('ContentRevisionRepository') private contentRevisionRepository: Repository<ContentRevisionModel>,
+                @inject('AppDataSource') private connection: DataSource) {
     }
 
     async list() {
@@ -42,27 +43,34 @@ export class ContentService {
         const contentModel = this.createContentRequestDtoToContentModelConverter.convert(ccDto);
         const contentRevisionModel = this.createContentRequestDtoToContentRevisionModelConverter.convert(ccDto);
         contentModel.contentRevisions = [contentRevisionModel];
-        await this.contentRepository.save(contentModel);
+        await this.connection.transaction(async (manager) => {
+            const contentRepository = manager.withRepository(this.contentRepository);
+            await contentRepository.save(contentModel);
+        });
         return this.contentModelToContentResponseDtoConverter.convert(contentModel);
     }
 
     async update(ucDto: UpdateContentRequestDto) {
-        const contentModel = await this.contentRepository.findOneByIdWithOptions(ucDto.id);
-        if (contentModel) {
-            if (ucDto.name || ucDto.displayName || ucDto.published) {
-                this.updateContentModelFromUpdateContentDTO(contentModel, ucDto);
+        return await this.connection.transaction(async (manager) => {
+            const contentRepository = manager.withRepository(this.contentRepository);
+            const contentRevisionRepository = manager.withRepository(this.contentRevisionRepository);
+            const contentModel = await contentRepository.findOneByIdWithOptions(ucDto.id);
+            if (contentModel) {
+                if (ucDto.name || ucDto.displayName || ucDto.published) {
+                    this.updateContentModelFromUpdateContentDTO(contentModel, ucDto);
+                }
+                if (ucDto.content || ucDto.summary) {
+                    const contentRevisionModel = this.updateContentRequestDtoToContentRevisionModelConverter.convert(ucDto);
+                    contentRevisionModel.parent = contentModel;
+                    contentModel.contentRevisions.push(contentRevisionModel);
+                    await contentRevisionRepository.save(contentRevisionModel);
+                }
+                await contentRepository.save(contentModel);
+                return this.contentModelToContentResponseDtoConverter.convert(contentModel);
+            } else {
+                return null;
             }
-            if (ucDto.content || ucDto.summary) {
-                const contentRevisionModel = this.updateContentRequestDtoToContentRevisionModelConverter.convert(ucDto);
-                contentRevisionModel.parent = contentModel;
-                contentModel.contentRevisions.push(contentRevisionModel);
-                await this.contentRevisionRepository.save(contentRevisionModel);
-            }
-            await this.contentRepository.save(contentModel);
-            return this.contentModelToContentResponseDtoConverter.convert(contentModel);
-        } else {
-            return null;
-        }
+        });
     }
 
     private updateContentModelFromUpdateContentDTO(contentModel: ContentModel, ucDto: UpdateContentRequestDto) {
@@ -72,12 +80,15 @@ export class ContentService {
     }
 
     async delete(idDto: IDDto) {
-        const contentModel = await this.contentRepository.findOneByIdWithOptions(idDto.id);
-        if (contentModel) {
-            await this.contentRepository.delete({id: contentModel.id});
-            return true;
-        } else {
-            return false;
-        }
+        return await this.connection.transaction(async (manager) => {
+            const contentRepository = manager.withRepository(this.contentRepository);
+            const contentModel = await contentRepository.findOneByIdWithOptions(idDto.id);
+            if (contentModel) {
+                await contentRepository.delete({id: contentModel.id});
+                return true;
+            } else {
+                return false;
+            }
+        });
     }
 }
