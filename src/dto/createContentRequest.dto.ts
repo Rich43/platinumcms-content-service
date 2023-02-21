@@ -19,7 +19,7 @@ export class CreateContentRequestDto {
         return this._displayName;
     }
 
-    @Length(2, 65535)
+    @Length(2, 2 ** 13)
     @IsString()
     set displayName(value: string) {
         this._displayName = value;
@@ -32,7 +32,7 @@ export class CreateContentRequestDto {
     }
 
     @ValidateIf((val) => val.name !== undefined)
-    @MaxLength(65535)
+    @MaxLength(2 ** 13)
     @IsString()
     set summary(value: string | undefined) {
         this._summary = value === undefined ? '' : value;

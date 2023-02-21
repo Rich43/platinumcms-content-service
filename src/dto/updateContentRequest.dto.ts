@@ -33,7 +33,7 @@ export class UpdateContentRequestDto {
     }
 
     @ValidateIf((val) => val.name !== undefined)
-    @Length(2, 65535)
+    @Length(2, 2 ** 13)
     @IsString()
     set displayName(value: string | undefined) {
         this._displayName = value;
@@ -59,7 +59,7 @@ export class UpdateContentRequestDto {
     }
 
     @ValidateIf((val) => val.name !== undefined)
-    @MaxLength(65535)
+    @MaxLength(2 ** 13)
     @IsString()
     set summary(value: string | undefined) {
         this._summary = value;

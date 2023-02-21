@@ -7,6 +7,7 @@
     "db:create": "ts-node ./node_modules/typeorm-extension/dist/cli/index.js db:create",
     "db:drop": "ts-node ./node_modules/typeorm-extension/dist/cli/index.js db:drop",
     "seed": "ts-node src/seed.ts",
+    "seedProd": "cross-env NODE_ENV=production ts-node src/seed.ts",
     "test": "npm run test:lint && npm run test:coverage",
     "start": "cross-env NODE_ENV=production ts-node src/listen.ts",
     "pretest": "eslint --ignore-path .gitignore .",

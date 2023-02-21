@@ -6,7 +6,7 @@ export class ContentRevisionModel {
     @PrimaryGeneratedColumn()
     id!: number;
 
-    @Column({length: 65535})
+    @Column({length: 2 ** 13})
     summary?: string;
 
     @Column('text')

@@ -9,7 +9,7 @@ export class ContentModel {
     @Column({unique: true, length: 255})
     name!: string;
 
-    @Column({length: 65535})
+    @Column({length: 2 ** 13})
     displayName!: string;
 
     @Column()
