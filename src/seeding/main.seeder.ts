@@ -11,10 +11,10 @@ export class MainSeeder implements Seeder {
         const contentModelFactory = factoryManager.get(ContentModel);
         const contentRevisionModelFactory = factoryManager.get(ContentRevisionModel);
         const contentModels = await Promise.all(
-            Array(50)
+            Array(100)
                 .fill('')
                 .map(async () => await contentModelFactory.make({
-                    contentRevisions: await contentRevisionModelFactory.saveMany(10)
+                    contentRevisions: await contentRevisionModelFactory.saveMany(100)
                 }))
         );
         await ContentRepository(dataSource).save(contentModels);
