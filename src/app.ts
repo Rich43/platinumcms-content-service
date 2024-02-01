@@ -10,6 +10,40 @@ import { container } from 'tsyringe';
 import { ContentController } from './controllers';
 import { CreateContentRequestDto, UpdateContentRequestDto } from './dto';
 import { createServer as crtSvr } from 'node:http';
+import { DefaultEventsMap } from 'socket.io/dist/typed-events';
+
+function router(app: Express, instance: ContentController, io: Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>) {
+    const contentRouter = Router();
+    app.use(`${serverSettings.context}/content`, contentRouter);
+    contentRouter.get('/list', async function (req, res, next) {
+        res.send(await instance.list());
+    });
+    contentRouter.get('/read/:id', async function (req, res, next) {
+        res.send(await instance.read(parseInt(req.params.id)));
+    });
+    contentRouter.post('/create', async function (req, res, next) {
+        const JSONBody = JSON.parse(req.body);
+        const ccDto = new CreateContentRequestDto();
+        ccDto.name = JSONBody.name;
+        ccDto.displayName = JSONBody.displayName;
+        ccDto.summary = JSONBody.summary;
+        ccDto.content = JSONBody.content;
+        ccDto.published = JSONBody.published;
+        res.send(await instance.create(ccDto));
+    });
+    contentRouter.patch('/patch', async function (req, res, next) {
+        io.emit('PATCH', JSON.parse(req.body));
+        const JSONBody = JSON.parse(req.body);
+        const ucDto = new UpdateContentRequestDto();
+        ucDto.id = JSONBody.id;
+        ucDto.name = JSONBody.name;
+        ucDto.displayName = JSONBody.displayName;
+        ucDto.summary = JSONBody.summary;
+        ucDto.content = JSONBody.content;
+        ucDto.published = JSONBody.published;
+        res.send(await instance.patch(ucDto));
+    });
+}
 
 export async function createServer() {
     const AppDataSource = createAppDataSource(extraConfig);
@@ -30,36 +64,7 @@ export async function createServer() {
     const instance = container.resolve(ContentController);
     const server = crtSvr(app);
     const io = new Server(server, {});
-    const contentRouter = Router();
-    app.use(`${serverSettings.context}/content`, contentRouter);
-    contentRouter.get('/list', async function(req, res, next){
-        res.send(await instance.list())
-    });
-    contentRouter.get('/read/:id', async function(req, res, next){
-        res.send(await instance.read(parseInt(req.params.id)))
-    });
-    contentRouter.post('/create', async function(req, res, next){
-        const JSONBody = JSON.parse(req.body);
-        const ccDto = new CreateContentRequestDto();
-        ccDto.name = JSONBody.name;
-        ccDto.displayName = JSONBody.displayName;
-        ccDto.summary = JSONBody.summary;
-        ccDto.content = JSONBody.content;
-        ccDto.published = JSONBody.published;
-        res.send(await instance.create(ccDto))
-    });
-    contentRouter.patch('/patch', async function(req, res, next){
-        io.emit('PATCH', JSON.parse(req.body));
-        const JSONBody = JSON.parse(req.body);
-        const ucDto = new UpdateContentRequestDto();
-        ucDto.id = JSONBody.id;
-        ucDto.name = JSONBody.name;
-        ucDto.displayName = JSONBody.displayName;
-        ucDto.summary = JSONBody.summary;
-        ucDto.content = JSONBody.content;
-        ucDto.published = JSONBody.published;
-        res.send(await instance.patch(ucDto));
-    });
+    router(app, instance, io);
     return app;
 }
 
