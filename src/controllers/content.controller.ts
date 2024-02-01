@@ -1,38 +1,31 @@
-import { BadRequestError, Body, Get, JsonController, Param, Patch, Post, } from 'routing-controllers';
 import { ContentService } from '../services';
-import { ContentResponseDto, CreateContentRequestDto, UpdateContentRequestDto } from '../dto';
+import { CreateContentRequestDto, UpdateContentRequestDto } from '../dto';
 import { singleton } from 'tsyringe';
 
-@JsonController('/content')
 @singleton()
 export class ContentController {
     constructor(private contentService: ContentService) {}
 
-    @Get()
     async list() {
-        return await this.contentService.list();
+        const listValue = await this.contentService.list();
+        return JSON.stringify(listValue);
     }
 
-    @Get('/read/:id')
-    async read(@Param('id') id: number): Promise<ContentResponseDto | null> {
-        return await this.contentService.read({id});
+    async read(id: number): Promise<string> {
+        const readContent = await this.contentService.read({id});
+        return JSON.stringify(readContent);
     }
 
-    @Post()
-    async create(
-        @Body() ccDto: CreateContentRequestDto,
-    ): Promise<ContentResponseDto> {
-        return await this.contentService.create(ccDto);
+    async create(ccDto: CreateContentRequestDto): Promise<string> {
+        const contentResponseDto = await this.contentService.create(ccDto);
+        return JSON.stringify(contentResponseDto);
     }
 
-    @Patch()
-    async patch(
-        @Body() ucDto: UpdateContentRequestDto,
-    ): Promise<ContentResponseDto> {
+    async patch(ucDto: UpdateContentRequestDto): Promise<string> {
         const result = await this.contentService.update(ucDto);
         if (result === null) {
-            throw new BadRequestError('Unable to find requested id');
+            return JSON.stringify({'type': 'error', 'message': 'Unable to find requested id'});
         }
-        return result;
+        return JSON.stringify(result);
     }
 }

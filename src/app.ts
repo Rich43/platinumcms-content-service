@@ -1,17 +1,16 @@
 import 'reflect-metadata';
-import express, { Express } from 'express';
+import express, { Express, Router } from 'express';
 import { serverSettings } from './config';
-import { routingConfigs } from './setup/routing.options';
-import { useContainer as useContainerRouting, useExpressServer } from 'routing-controllers';
-import { useContainer as useContainerValidator } from 'class-validator';
 import log from './setup/logger';
 import morganMiddleware from './setup/morgan.middleware';
 import { createAppDataSource, extraConfig } from './setup/datasource';
-import { container } from 'tsyringe';
-import { SyringeAdapter } from './adapters';
+import { Server } from 'socket.io';
+import { createServer as crtSvr } from 'http';
 import { ContentRepository, ContentRevisionRepository } from './repositories';
+import { container } from 'tsyringe';
+import { ContentController } from './controllers';
 
-export function createServer() {
+export async function createServer() {
     const AppDataSource = createAppDataSource(extraConfig);
     log.info('Initialising server...');
     AppDataSource.initialize()
@@ -27,10 +26,15 @@ export function createServer() {
     container.register('AppDataSource', {useValue: AppDataSource});
     container.register('ContentRepository', {useValue: ContentRepository(AppDataSource)});
     container.register('ContentRevisionRepository', {useValue: ContentRevisionRepository(AppDataSource)});
-    const syringeAdapter = new SyringeAdapter(container);
-    useContainerRouting(syringeAdapter);
-    useContainerValidator(syringeAdapter);
-    return useExpressServer(app, routingConfigs);
+    const instance = container.resolve(ContentController);
+    const server = crtSvr(app);
+    const io = new Server(server, {});
+    const contentRouter = Router();
+    app.use(`${serverSettings.context}/content`, contentRouter);
+    contentRouter.get('/list', async function(req, res, next){
+        res.send(await instance.list())
+    });
+    return app;
 }
 
 export function listen(app: Express) {
@@ -39,7 +43,7 @@ export function listen(app: Express) {
     app.listen(serverSettings.port);
 }
 
-export function configureAndListen() {
+export async function configureAndListen() {
     const app = createServer();
-    listen(app);
+    listen(await app);
 }
