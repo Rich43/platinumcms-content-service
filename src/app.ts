@@ -31,7 +31,7 @@ function router(app: Express, instance: ContentController, io: Server<DefaultEve
         ccDto.published = JSONBody.published;
         res.send(await instance.create(ccDto));
     });
-    contentRouter.patch('/patch', async function (req, res, next) {
+    contentRouter.patch('/update', async function (req, res, next) {
         io.emit('PATCH', JSON.parse(req.body));
         const JSONBody = JSON.parse(req.body);
         const ucDto = new UpdateContentRequestDto();
