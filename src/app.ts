@@ -71,10 +71,13 @@ export async function createServer() {
     app.get(`/`, function (req, res, next) {
         res.sendFile(path.join(__dirname, '/index.html'));
     });
-    return app;
+    app.get("/socketScript.js", function (req, res, next) {
+        res.sendFile(path.join(__dirname, '/socketScript.js'));
+    });
+    return server;
 }
 
-export function listen(app: Express) {
+export function listen(app: any) {
     // noinspection HttpUrlsUsage
     log.info(`Server is up and running @ http://${serverSettings.host}:${serverSettings.port}`);
     app.listen(serverSettings.port);
