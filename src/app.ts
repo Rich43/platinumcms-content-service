@@ -9,6 +9,7 @@ import { createServer as crtSvr } from 'http';
 import { ContentRepository, ContentRevisionRepository } from './repositories';
 import { container } from 'tsyringe';
 import { ContentController } from './controllers';
+import { CreateContentRequestDto, UpdateContentRequestDto } from './dto';
 
 export async function createServer() {
     const AppDataSource = createAppDataSource(extraConfig);
@@ -38,10 +39,25 @@ export async function createServer() {
         res.send(await instance.read(parseInt(req.params.id)))
     });
     contentRouter.post('/create', async function(req, res, next){
-        res.send(await instance.create(req.body))
+        const JSONBody = JSON.parse(req.body);
+        const ccDto = new CreateContentRequestDto();
+        ccDto.name = JSONBody.name;
+        ccDto.displayName = JSONBody.displayName;
+        ccDto.summary = JSONBody.summary;
+        ccDto.content = JSONBody.content;
+        ccDto.published = JSONBody.published;
+        res.send(await instance.create(ccDto))
     });
     contentRouter.patch('/patch', async function(req, res, next){
-        res.send(await instance.patch(req.body))
+        const JSONBody = JSON.parse(req.body);
+        const ucDto = new UpdateContentRequestDto();
+        ucDto.id = JSONBody.id;
+        ucDto.name = JSONBody.name;
+        ucDto.displayName = JSONBody.displayName;
+        ucDto.summary = JSONBody.summary;
+        ucDto.content = JSONBody.content;
+        ucDto.published = JSONBody.published;
+        res.send(await instance.patch(ucDto));
     });
     return app;
 }
