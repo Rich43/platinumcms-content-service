@@ -5,11 +5,11 @@ import log from './setup/logger';
 import morganMiddleware from './setup/morgan.middleware';
 import { createAppDataSource, extraConfig } from './setup/datasource';
 import { Server } from 'socket.io';
-import { createServer as crtSvr } from 'http';
 import { ContentRepository, ContentRevisionRepository } from './repositories';
 import { container } from 'tsyringe';
 import { ContentController } from './controllers';
 import { CreateContentRequestDto, UpdateContentRequestDto } from './dto';
+import { createServer as crtSvr } from 'node:http';
 
 export async function createServer() {
     const AppDataSource = createAppDataSource(extraConfig);
@@ -49,6 +49,7 @@ export async function createServer() {
         res.send(await instance.create(ccDto))
     });
     contentRouter.patch('/patch', async function(req, res, next){
+        io.emit('PATCH', JSON.parse(req.body));
         const JSONBody = JSON.parse(req.body);
         const ucDto = new UpdateContentRequestDto();
         ucDto.id = JSONBody.id;
