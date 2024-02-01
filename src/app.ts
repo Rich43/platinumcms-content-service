@@ -34,6 +34,15 @@ export async function createServer() {
     contentRouter.get('/list', async function(req, res, next){
         res.send(await instance.list())
     });
+    contentRouter.get('/read/:id', async function(req, res, next){
+        res.send(await instance.read(parseInt(req.params.id)))
+    });
+    contentRouter.post('/create', async function(req, res, next){
+        res.send(await instance.create(req.body))
+    });
+    contentRouter.patch('/patch', async function(req, res, next){
+        res.send(await instance.patch(req.body))
+    });
     return app;
 }
 
