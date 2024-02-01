@@ -11,9 +11,12 @@ import { ContentController } from './controllers';
 import { CreateContentRequestDto, UpdateContentRequestDto } from './dto';
 import { createServer as crtSvr } from 'node:http';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
+import bodyParser from 'body-parser';
+import path from 'path';
 
 function router(app: Express, instance: ContentController, io: Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>) {
     const contentRouter = Router();
+    app.use(bodyParser.json())
     app.use(`${serverSettings.context}/content`, contentRouter);
     contentRouter.get('/list', async function (req, res, next) {
         res.send(await instance.list());
@@ -22,7 +25,7 @@ function router(app: Express, instance: ContentController, io: Server<DefaultEve
         res.send(await instance.read(parseInt(req.params.id)));
     });
     contentRouter.post('/create', async function (req, res, next) {
-        const JSONBody = JSON.parse(req.body);
+        const JSONBody = req.body;
         const ccDto = new CreateContentRequestDto();
         ccDto.name = JSONBody.name;
         ccDto.displayName = JSONBody.displayName;
@@ -32,8 +35,8 @@ function router(app: Express, instance: ContentController, io: Server<DefaultEve
         res.send(await instance.create(ccDto));
     });
     contentRouter.patch('/update', async function (req, res, next) {
-        io.emit('PATCH', JSON.parse(req.body));
-        const JSONBody = JSON.parse(req.body);
+        io.emit('PATCH', req.body);
+        const JSONBody = req.body;
         const ucDto = new UpdateContentRequestDto();
         ucDto.id = JSONBody.id;
         ucDto.name = JSONBody.name;
@@ -65,6 +68,9 @@ export async function createServer() {
     const server = crtSvr(app);
     const io = new Server(server, {});
     router(app, instance, io);
+    app.get(`/`, function (req, res, next) {
+        res.sendFile(path.join(__dirname, '/index.html'));
+    });
     return app;
 }
 
